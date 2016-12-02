@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<tests>
+    <test id="001">
+        <amount>1000</amount>
+        <converterFrom>RUR</converterFrom>
+        <converterTo>EUR</converterTo>
+        <source>cash</source>
+        <destination>cash</destination>>
+        <date>30.11.2016 15:25</date>
+    </test>
+
+    <test id="002">
+        <amount>2000</amount>
+        <converterFrom>RUR</converterFrom>
+        <converterTo>USD</converterTo>
+        <source>cash</source>
+        <destination>cash</destination>>
+        <date>30.11.2016 13:00</date>
+    </test>
+
+    <test id="003">
+        <amount>3000</amount>
+        <converterFrom>RUR</converterFrom>
+        <converterTo>CHF</converterTo>
+        <source>cash</source>
+        <destination>cash</destination>>
+        <date>02.12.2016</date>
+    </test>
+</tests>
