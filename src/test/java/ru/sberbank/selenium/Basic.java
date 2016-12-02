@@ -29,7 +29,6 @@ public class Basic {
 
     @After
     public void tearDown() {
-//        TODO
         driver.quit();
     }
 }
