@@ -13,9 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by inurrick on 02.12.2016.
- */
 public class XmlData {
 
     private transient Collection data = null;

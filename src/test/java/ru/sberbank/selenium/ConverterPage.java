@@ -13,9 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by inurrick on 01.12.2016.
- */
 public class ConverterPage {
 
     @FindBy(how = How.XPATH, using = "//div[@class='rates-aside-filter rates-container']//button[text()='Показать']")

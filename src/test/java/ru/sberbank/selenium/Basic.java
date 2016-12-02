@@ -9,9 +9,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by inurrick on 01.12.2016.
- */
 public class Basic {
 
     WebDriver driver;

@@ -9,9 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-/**
- * Created by inurrick on 01.12.2016.
- */
 @RunWith(Parameterized.class)
 public class ConverterTest extends Basic {
 
