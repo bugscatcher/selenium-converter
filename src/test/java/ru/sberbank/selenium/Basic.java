@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 public class Basic {
 
     WebDriver driver;
-    private String baseUrl = "http://www.sberbank.ru/ru/quotes/converter";
 
     @Before
     public void setUp() {
@@ -18,6 +17,7 @@ public class Basic {
         driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().window().maximize();
+        String baseUrl = "http://www.sberbank.ru/ru/quotes/converter";
         driver.get(baseUrl);
     }
 

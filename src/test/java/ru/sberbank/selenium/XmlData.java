@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class XmlData {
+class XmlData {
 
     private transient Collection data = null;
 

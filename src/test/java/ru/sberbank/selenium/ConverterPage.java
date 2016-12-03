@@ -5,13 +5,11 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
+import org.openqa.selenium.support.ui.Select;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class ConverterPage {
 
@@ -26,9 +24,6 @@ public class ConverterPage {
 
     @FindBy(how = How.XPATH, using = "//div[@class='rates-aside-filter rates-container']/div[1]/div[3]/div[2]//span")
     private List<WebElement> converterFromOptions;
-
-    @FindBy(how = How.XPATH, using = "//div[@class='rates-aside-filter rates-container']//input[@name='filter-datepicker-detailed']")
-    private WebElement inpDate;
 
     @FindBy(how = How.XPATH, using = "//div[@class='rates-aside-filter rates-container']/div[1]/div[4]/div[2]")
     private WebElement ddlConverterTo;
@@ -66,33 +61,60 @@ public class ConverterPage {
     @FindBy(how = How.XPATH, using = "//div[@class='rates-aside-filter rates-container']/div[6]/div[@class='filter-datepicker input']/input")
     private WebElement inpSelectDate;
 
-    public void clickBTNCalculate() {
+    @FindBy(how = How.XPATH, using = "id('ui-datepicker-div')//span[@class='ui-datepicker-month']")
+    private WebElement lblMonth;
+
+
+    @FindBy(how = How.XPATH, using = "id('ui-datepicker-div')//a[@class='ui-datepicker-prev ui-corner-all']")
+    private WebElement btnMonthPrev;
+
+
+    @FindBy(how = How.XPATH, using = "id('ui-datepicker-div')//a[@class='ui-datepicker-next ui-corner-all']")
+    private WebElement btnMonthNext;
+
+
+    @FindBy(how = How.XPATH, using = "id('ui-datepicker-div')//select[@data-handler='selectYear']")
+    private WebElement ddlYear;
+
+
+    @FindBy(how = How.XPATH, using = "//table[@class='ui-datepicker-calendar']/tbody//td")
+    private List<WebElement> days;
+
+    @FindBy(how = How.XPATH, using = "id('ui-datepicker-div')//dd[@class='ui_tpicker_hour']//select")
+    private WebElement ddlHour;
+
+    @FindBy(how = How.XPATH, using = "id('ui-datepicker-div')//dd[@class='ui_tpicker_minute']//select")
+    private WebElement ddlMinute;
+
+    @FindBy(how = How.XPATH, using = "id('ui-datepicker-div')//span[@class='button converter-datepicker-hide']")
+    private WebElement btnSelectDateAndTime;
+
+    @FindBy(how = How.XPATH, using = "//div[@class='converter-result']//h4/span[1]")
+    private WebElement lblResult;
+
+    private String defaultFormat = "dd.MM.yyyy HH:mm";
+
+    public void clickCalculate() {
         btnCalculate.click();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void typeTXTAmount(String amount) {
-//        txtAmount.clear();
+    public void typeAmount(String amount) {
         txtAmount.sendKeys(Keys.CONTROL + "a");
         txtAmount.sendKeys(Keys.DELETE);
         txtAmount.sendKeys(amount);
     }
 
-/*    public void selectDDLConverterFrom(String currency) {
-        //    class= "hidden", doesn't work
-        new Select(ddlConverterFrom).selectByVisibleText(currency);
-    }
-
-    public void selectDDLConverterTo(String currency) {
-        //    class= "hidden", doesn't work
-        new Select(ddlConverterTo).selectByVisibleText(currency);
-    }*/
-
-    public void selectDDLConverterFrom(String currency) {
+    public void selectConverterFrom(String currency) {
         ddlConverterFrom.click();
         selectCurrency(converterFromOptions, currency);
     }
 
-    public void selectDDLConverterTo(String currency) {
+    public void selectConverterTo(String currency) {
         ddlConverterTo.click();
         selectCurrency(lstConverterToOptions, currency);
     }
@@ -120,19 +142,6 @@ public class ConverterPage {
         }
     }
 
-    public void clickLNKDynamicsOfChangesInExchangeRate() {
-        lnkDynamicsOfChangesInExchangeRate.click();
-    }
-
-    public void clickLNKExtendedRatesTable() {
-        lnkExtendedRatesTable.click();
-    }
-
-    public void typeINPDate(String date) {
-        inpDate.clear();
-        inpDate.sendKeys(date);
-    }
-
     public void setSource(String source) {
         for (int i = 0; i < lstSource.size(); i++) {
             WebElement element = lstSource.get(i);
@@ -151,7 +160,7 @@ public class ConverterPage {
         }
     }
 
-    public void clickBTNShowExchangeRates() {
+    public void clickShowExchangeRates() {
         btnShowExchangeRates.click();
         try {
             Thread.sleep(2000);
@@ -160,55 +169,40 @@ public class ConverterPage {
         }
     }
 
-    public void clickLNKTableOfQuotes() {
+    public void openTableOfQuotes() {
         lnkTableOfQuotes.click();
     }
 
-    public String getSellValue(String date) {
-        String sell = null;
+    public float getSellValue(String date) {
+        String sell = getBuyAndSell(date).get("sell");
+        sell = sell.replace(",", ".");
+        return Float.parseFloat(sell);
+    }
 
-        Date date1 = getDateFromString(date.substring(0, date.indexOf(" ")));
-        Date time1 = getTimeFromString(date.substring((date.indexOf(" ") + 1), date.length()));
+    public float getBuyValue(String date) {
+        String sell = getBuyAndSell(date).get("buy");
+        sell = sell.replace(",", ".");
+        return Float.parseFloat(sell);
+    }
 
+    private Map<String, String> getBuyAndSell(String date) {
+        Map<String, String> m = new HashMap<>();
+        Date date1 = getDateInCustomFormat(date, defaultFormat);
 
         for (int i = 0; i < tableOfQuotes.size(); i++) {
             WebElement element = tableOfQuotes.get(i);
             String values = element.getText();
             String[] value = values.split(" ");
-            if (value[0].length() == 10 && value[0].contains(".2016")) {
-                Date date2 = getDateFromString(value[0]);
-                Date time2 = getTimeFromString(value[1]);
+            if (value[0].length() == 10 && value[0].contains(".20")) {
+                Date date2 = getDateInCustomFormat(value[0] + " " + value[1], defaultFormat);
                 if (date1.after(date2) || date1.equals(date2)) {
-                    if (time1.after(time2) || time1.equals(time2)) {
-                        sell = value[6];
-                        break;
-                    }
+                    m.put("buy", value[5]);
+                    m.put("sell", value[6]);
+                    break;
                 }
             }
         }
-        return sell;
-    }
-
-    private Date getDateFromString(String s) {
-        DateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        Date d = null;
-        try {
-            d = format.parse(s);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return d;
-    }
-
-    private Date getTimeFromString(String s) {
-        DateFormat format = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        Date d = null;
-        try {
-            d = format.parse(s);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return d;
+        return m;
     }
 
     public void closeTableOfQuotes() {
@@ -221,9 +215,69 @@ public class ConverterPage {
     }
 
     public void selectDate(String date) {
-//        TODO
         rdoSelectDate.click();
         inpSelectDate.click();
 
+//        Year
+        String requiredYear = getStringInCustomDateFormat(date, defaultFormat, "yyyy");
+        Select dropdown = new Select(ddlYear);
+        dropdown.selectByValue(requiredYear);
+
+//        Month
+        Date requiredMonth = getDateInCustomFormat(date, defaultFormat);
+        Date actualMonth = getDateInCustomFormat(lblMonth.getText(), "MMMM");
+        String requiredMonthInString = getStringInCustomDateFormat(date, defaultFormat, "MMMM");
+        if (actualMonth.after(requiredMonth)) {
+            while (!requiredMonthInString.equals(lblMonth.getText())) {
+                btnMonthNext.click();
+            }
+        } else {
+            while (!requiredMonthInString.equals(lblMonth.getText())) {
+                btnMonthPrev.click();
+            }
+        }
+
+//        Day
+        String requiredDay = getStringInCustomDateFormat(date, defaultFormat, "d");
+        for (int i = 0; i < days.size(); i++) {
+            WebElement element = days.get(i);
+            if (element.getText().equals(requiredDay)) {
+                element.click();
+                break;
+            }
+        }
+
+//        Time
+        String requiredHour = getStringInCustomDateFormat(date, defaultFormat, "HH");
+        dropdown = new Select(ddlHour);
+        dropdown.selectByVisibleText(requiredHour);
+
+        String requiredMinute = getStringInCustomDateFormat(date, defaultFormat, "mm");
+        dropdown = new Select(ddlMinute);
+        dropdown.selectByVisibleText(requiredMinute);
+
+//        Finally
+        btnSelectDateAndTime.click();
+    }
+
+    private String getStringInCustomDateFormat(String date, String inputFormat, String outputFormat) {
+        Date d = getDateInCustomFormat(date, inputFormat);
+        SimpleDateFormat sdf = new SimpleDateFormat(outputFormat, new Locale("ru"));
+        return sdf.format(d);
+    }
+
+    private Date getDateInCustomFormat(String date, String inputFormat) {
+        SimpleDateFormat sdf = new SimpleDateFormat(inputFormat, new Locale("ru"));
+        Date d = null;
+        try {
+            d = sdf.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
+
+    public String getResultText() {
+        return lblResult.getText().replaceAll("\\s", "");
     }
 }
